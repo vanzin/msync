@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>812</width>
+    <height>653</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="main">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
+    <item>
+     <layout class="QHBoxLayout" name="toolBar">
+      <item>
+       <widget class="QToolButton" name="bSync">
+        <property name="text">
+         <string>Sync</string>
+        </property>
+        <property name="icon">
+         <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="bConfig">
+        <property name="text">
+         <string>Settings</string>
+        </property>
+        <property name="icon">
+         <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="bQuit">
+        <property name="text">
+         <string>Quit</string>
+        </property>
+        <property name="icon">
+         <iconset theme="QIcon::ThemeIcon::WindowClose"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="panes">
+      <item row="1" column="0">
+       <widget class="QTreeWidget" name="source">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lSource">
+        <property name="text">
+         <string>Source</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QTreeWidget" name="treeWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="lTarget">
+        <property name="text">
+         <string>Target</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="infoPane" stretch="0,1">
+      <item>
+       <widget class="QLabel" name="cover">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="sizeIncrement">
+         <size>
+          <width>10</width>
+          <height>10</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Shape::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="infoLayout" rowstretch="0,0,0,0,0">
+        <item row="2" column="0">
+         <widget class="QLabel" name="lTrack">
+          <property name="text">
+           <string>Track</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="album"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="track"/>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <layout class="QHBoxLayout" name="details">
+          <item>
+           <widget class="QLabel" name="lTrackNo">
+            <property name="text">
+             <string>Track No.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="lYear">
+            <property name="text">
+             <string>Year</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="year"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="lDuration">
+            <property name="text">
+             <string>Duration</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="duration"/>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lAlbum">
+          <property name="text">
+           <string>Album</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="artist"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="lArtist">
+          <property name="text">
+           <string>Artist</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
