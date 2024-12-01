@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import sys
 
 from PySide6.QtWidgets import QApplication
