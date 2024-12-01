@@ -1,5 +1,19 @@
 import os
+
+import jsonpickle
+from PySide6.QtCore import QSettings
 from PySide6.QtUiTools import loadUiType
+
+APP_NAME = "msync"
+SETTINGS = QSettings("vanzin.org", APP_NAME)
+
+
+def config_dir(create=False):
+    path = os.path.join(os.path.dirname(SETTINGS.fileName()), APP_NAME)
+    if create and not os.path.isdir(path):
+        os.mkdir(path)
+    return path
+
 
 def compile_ui(src):
     path = os.path.join(os.path.dirname(__file__), "ui", src)
@@ -12,3 +26,39 @@ def compile_ui(src):
             self.setupUi(self)
 
     return _WidgetBase
+
+
+class ConfigObj:
+    """
+    Base class for config objects that disables serialization of "private" fields.
+    """
+
+    SAVE_ENABLED = True
+
+    @classmethod
+    def load(cls):
+        path = os.path.join(config_dir(), cls.config_file_name())
+        if os.path.isfile(path):
+            return jsonpickle.decode(open(path).read())
+        return cls()
+
+    @classmethod
+    def config_file_name(cls):
+        return "{}.{}".format(cls.__module__, cls.__name__)
+
+    def __getstate__(self):
+        return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
+
+    def __setstate__(self, data):
+        self.__init__()
+        for k, v in data.items():
+            setattr(self, k, v)
+
+    def save(self):
+        if self.SAVE_ENABLED:
+            jsonpickle.set_preferred_backend("json")
+            jsonpickle.set_encoder_options("json", indent=2)
+            path = os.path.join(config_dir(create=True), self.config_file_name())
+            data = jsonpickle.encode(self)
+            with open(path, "wt", encoding="utf-8") as out:
+                out.write(data)

@@ -16,7 +16,7 @@
   <widget class="QWidget" name="main">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
     <item>
-     <layout class="QHBoxLayout" name="toolBar">
+     <layout class="QHBoxLayout" name="toolbar">
       <item>
        <widget class="QToolButton" name="bSync">
         <property name="text">

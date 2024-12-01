@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-import os
-import sys
-from PySide6.QtCore import QFile
-from PySide6.QtWidgets import QApplication, QLabel
-from PySide6.QtUiTools import QUiLoader
-
+import app
 from main import MainWindow
+from model import Config
 
-app = QApplication(sys.argv)
+the_app = app.get()
 
-main = MainWindow()
+cfg = Config.load()
+
+main = MainWindow(cfg)
 main.show()
 
-app.exec()
+the_app.exec()
