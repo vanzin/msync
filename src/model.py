@@ -2,7 +2,7 @@
 import util
 
 
-class Directory(object):
+class Album(object):
     def __init__(self, path):
         self.tracks = []
 
@@ -24,10 +24,10 @@ class Track(object):
 
 
 class Config(util.ConfigObj):
+    source_path = ""
+    target_path = ""
+
     def __init__(self):
-        # TODO:
-        # - track selected source dirs
-        # - track ignored tracks
         pass
 
 
