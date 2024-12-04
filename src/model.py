@@ -19,12 +19,17 @@ class Artist(object):
 
 
 class Album(object):
-    def __init__(self, path, tracks):
+    def __init__(self, path, name, tracks):
+        self.name = name
         self.tracks = tracks
 
         # TODO:
         # - load target state
         # - method for loading metadata based on first track
+
+    @property
+    def year(self):
+        return self.tracks[0].year
 
 
 class Track(object):
@@ -82,6 +87,16 @@ class Track(object):
     def artist(self):
         self._metadata()
         return self._artist
+
+    @property
+    def album(self):
+        self._metadata()
+        return self._album
+
+    @property
+    def year(self):
+        self._metadata()
+        return self._year
 
 
 class Config(util.ConfigObj):

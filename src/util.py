@@ -3,6 +3,8 @@ import os
 
 import jsonpickle
 from PySide6.QtCore import QSettings
+from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmapCache
 from PySide6.QtUiTools import loadUiType
 
 APP_NAME = "msync"
@@ -27,6 +29,10 @@ def compile_ui(src):
             self.setupUi(self)
 
     return _WidgetBase
+
+
+def icon(name):
+    return os.path.join(os.path.dirname(__file__), "icons", name)
 
 
 class ConfigObj:
@@ -63,3 +69,17 @@ class ConfigObj:
             data = jsonpickle.encode(self)
             with open(path, "wt", encoding="utf-8") as out:
                 out.write(data)
+
+
+class PixmapCache:
+    def __init__(self):
+        self._cache = QPixmapCache()
+        self._cache.setCacheLimit(64 * 1024 * 1024)
+
+    def get_icon(self, name):
+        pixmap = self._cache.find(name)
+        if not pixmap:
+            pixmap = QPixmap()
+            pixmap.load(icon(name))
+            self._cache.insert(name, pixmap)
+        return pixmap
