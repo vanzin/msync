@@ -1,0 +1,10 @@
+Package: msync
+Version: 1.0
+Section: multimedia
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: vanzin@apache.org
+Description: Tool to select media to transfer to a staging directory for copying to external devices (e.g. phones).
+Depends: python3-jsonpickle, python3-mutagen, pyside6-tools, python3-pyside6.qtgui, python3-pyside6.qtdesigner, python3-pyside6.qtuitools, python3-pyside6.qtwidgets, python3-pyside6.qtcore

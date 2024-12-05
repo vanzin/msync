@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=mSync
+GenericName=mSync
+Comment=Copies music
+Exec=/usr/bin/msync
+TryExec=/usr/bin/msync
+Icon=/usr/share/msync/icons/msync.png
+Terminal=false
+Categories=AudioVideo;
+StartupNotify=false
