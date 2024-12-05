@@ -36,6 +36,7 @@ class MainWindow(util.compile_ui("main.ui")):
         self.source.insertTopLevelItems(0, items)
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
+        self.target.itemChanged.connect(self.sync_target_state)
 
     def handle_quit(self):
         self.cfg.save()
@@ -123,6 +124,16 @@ class MainWindow(util.compile_ui("main.ui")):
         self.target.sortItems()
         self.staged_albums[item_name] = album
 
+    def _remove_target(self, album):
+        del self.staged_albums[album.staging_name]
+
+        for i in range(0, self.target.count()):
+            tgt_item = self.target.item(i)
+            tgt_data = tgt_item.data(Qt.UserRole)
+            if tgt_data == album:
+                self.target.takeItem(i)
+                break
+
     def toggle_track_state(self, item, col):
         data = item.data(0, Qt.UserRole)
         if not isinstance(data, model.Track):
@@ -142,20 +153,20 @@ class MainWindow(util.compile_ui("main.ui")):
         state = item.checkState(col)
 
         if staged in self.staged_albums and state == Qt.Unchecked:
-            del self.staged_albums[staged]
-
-            for i in range(0, self.target.count()):
-                tgt_item = self.target.item(i)
-                tgt_data = tgt_item.data(Qt.UserRole)
-                if tgt_data == data:
-                    self.target.takeItem(i)
-                    break
-
+            self._remove_target(data)
             return
 
         if not staged in self.staged_albums and state == Qt.Checked:
             self._add_target(data)
             return
+
+    def sync_target_state(self, item):
+        album = item.data(Qt.UserRole)
+        if (
+            album.staging_name in self.staged_albums
+            and item.checkState() == Qt.Unchecked
+        ):
+            self._remove_target(album)
 
     def handle_sync(self):
         # Clean up all existing staged data
