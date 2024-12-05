@@ -10,6 +10,8 @@ from PySide6.QtUiTools import loadUiType
 APP_NAME = "msync"
 SETTINGS = QSettings("vanzin.org", APP_NAME)
 
+_FS_SAFE_TABLE = str.maketrans("/*$^&%|[{}]\n\t:;'?!\"´", "--____-(())--__---.'")
+
 
 def config_dir(create=False):
     path = os.path.join(os.path.dirname(SETTINGS.fileName()), APP_NAME)
@@ -29,6 +31,10 @@ def compile_ui(src):
             self.setupUi(self)
 
     return _WidgetBase
+
+
+def fs_safe(s):
+    return s.translate(_FS_SAFE_TABLE)
 
 
 def icon(name):

@@ -6,6 +6,7 @@ import config
 import model
 import util
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QListWidgetItem
 from PySide6.QtWidgets import QTreeWidgetItem
 
 
@@ -17,13 +18,17 @@ class MainWindow(util.compile_ui("main.ui")):
 
         self.cfg = cfg
         self.pixmaps = util.PixmapCache()
-        self.artists = self._load_sources()
+
+        artists = self._load_sources()
 
         items = []
-        for a in self.artists:
+        for a in artists:
             items.append(self._to_tree_item(a))
         self.source.insertTopLevelItems(0, items)
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
+        self.source.itemChanged.connect(self.sync_album_state)
+
+        self.staged_albums = {}
 
     def handle_quit(self):
         self.cfg.save()
@@ -94,3 +99,35 @@ class MainWindow(util.compile_ui("main.ui")):
         flags = item.flags()
         flags ^= Qt.ItemIsEnabled
         item.setFlags(flags)
+
+    def sync_album_state(self, item, col):
+        data = item.data(0, Qt.UserRole)
+        if not isinstance(data, model.Album):
+            return
+
+        staged = data.staging_name
+        state = item.checkState(col)
+
+        if staged in self.staged_albums and state == Qt.Unchecked:
+            del self.staged_albums[staged]
+
+            for i in range(0, self.target.count()):
+                tgt_item = self.target.item(i)
+                tgt_data = tgt_item.data(Qt.UserRole)
+                if tgt_data == data:
+                    self.target.takeItem(i)
+                    break
+
+            return
+
+        if not staged in self.staged_albums and state == Qt.Checked:
+            self.staged_albums[staged] = data
+
+            list_item = QListWidgetItem(self.target)
+            list_item.setData(Qt.UserRole, data)
+            list_item.setText(staged)
+            list_item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+            list_item.setCheckState(Qt.Checked)
+            self.target.addItem(list_item)
+            self.target.sortItems()
+            return

@@ -25,11 +25,15 @@ class Album(object):
 
         # TODO:
         # - load target state
-        # - method for loading metadata based on first track
 
     @property
     def year(self):
         return self.tracks[0].year
+
+    @property
+    def staging_name(self):
+        artist = self.tracks[0].artist
+        return util.fs_safe(f"{artist} - {self.name}")
 
 
 class Track(object):
