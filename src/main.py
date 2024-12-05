@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 import os
+import shutil
 
 import app
 import config
@@ -7,6 +8,7 @@ import model
 import util
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem
+from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QTreeWidgetItem
 
 
@@ -15,20 +17,25 @@ class MainWindow(util.compile_ui("main.ui")):
         super().__init__()
         self.bQuit.clicked.connect(self.handle_quit)
         self.bConfig.clicked.connect(self.handle_config)
+        self.bSync.clicked.connect(self.handle_sync)
 
         self.cfg = cfg
         self.pixmaps = util.PixmapCache()
+        self.staged_albums = {}
 
         artists = self._load_sources()
 
         items = []
         for a in artists:
             items.append(self._to_tree_item(a))
+
+            for aa in a.albums:
+                if aa.path in self.cfg.staged_albums:
+                    self._add_target(aa)
+
         self.source.insertTopLevelItems(0, items)
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
-
-        self.staged_albums = {}
 
     def handle_quit(self):
         self.cfg.save()
@@ -59,7 +66,8 @@ class MainWindow(util.compile_ui("main.ui")):
                 artists.append(martist)
                 artists_by_name[artist] = martist
 
-            martist.add(model.Album(path, album, tracks))
+            malbum = model.Album(path, album, tracks)
+            martist.add(malbum)
 
         artists.sort(key=lambda a: a.name)
         for a in artists:
@@ -78,18 +86,42 @@ class MainWindow(util.compile_ui("main.ui")):
             a.setIcon(0, self.pixmaps.get_icon("album.png"))
             a.setText(0, album.name)
             a.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-            a.setCheckState(0, Qt.Unchecked)
             a.setData(0, Qt.UserRole, album)
+
+            state = Qt.Unchecked
+            if album.path in self.cfg.staged_albums:
+                state = Qt.Checked
+            a.setCheckState(0, state)
+
             top.addChild(a)
 
             for track in album.tracks:
                 t = QTreeWidgetItem(a)
                 t.setText(0, os.path.basename(track.path))
-                t.setFlags(Qt.ItemIsEnabled | Qt.ItemNeverHasChildren)
                 t.setData(0, Qt.UserRole, track)
+
+                flags = Qt.ItemNeverHasChildren
+                if track.path in self.cfg.skipped_tracks:
+                    track.set_skip(True)
+                else:
+                    flags |= Qt.ItemIsEnabled
+                t.setFlags(flags)
+
                 a.addChild(t)
 
         return top
+
+    def _add_target(self, album):
+        item_name = album.staging_name
+
+        list_item = QListWidgetItem(self.target)
+        list_item.setData(Qt.UserRole, album)
+        list_item.setText(item_name)
+        list_item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+        list_item.setCheckState(Qt.Checked)
+        self.target.addItem(list_item)
+        self.target.sortItems()
+        self.staged_albums[item_name] = album
 
     def toggle_track_state(self, item, col):
         data = item.data(0, Qt.UserRole)
@@ -99,6 +131,7 @@ class MainWindow(util.compile_ui("main.ui")):
         flags = item.flags()
         flags ^= Qt.ItemIsEnabled
         item.setFlags(flags)
+        data.set_skip(not bool(flags & Qt.ItemIsEnabled))
 
     def sync_album_state(self, item, col):
         data = item.data(0, Qt.UserRole)
@@ -121,13 +154,33 @@ class MainWindow(util.compile_ui("main.ui")):
             return
 
         if not staged in self.staged_albums and state == Qt.Checked:
-            self.staged_albums[staged] = data
-
-            list_item = QListWidgetItem(self.target)
-            list_item.setData(Qt.UserRole, data)
-            list_item.setText(staged)
-            list_item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-            list_item.setCheckState(Qt.Checked)
-            self.target.addItem(list_item)
-            self.target.sortItems()
+            self._add_target(data)
             return
+
+    def handle_sync(self):
+        # Clean up all existing staged data
+        for e in os.listdir(self.cfg.target_path):
+            shutil.rmtree(os.path.join(self.cfg.target_path, e))
+
+        # Symlink all selected albums, skipping disabled tracks.
+        albums = set()
+        skipped_tracks = set()
+
+        for _, album in self.staged_albums.items():
+            albums.add(album.path)
+            tgt_path = os.path.join(self.cfg.target_path, album.staging_name)
+            os.mkdir(tgt_path)
+
+            for t in album.tracks:
+                if t.skip:
+                    skipped_tracks.add(t.path)
+                    continue
+
+                tgt_lnk = os.path.join(tgt_path, util.fs_safe(os.path.basename(t.path)))
+                os.symlink(t.path, tgt_lnk)
+
+        self.cfg.staged_albums = albums
+        self.cfg.skipped_tracks = skipped_tracks
+        self.cfg.save()
+
+        QMessageBox.information(self, "msync", "Done!")

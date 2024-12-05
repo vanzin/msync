@@ -20,11 +20,9 @@ class Artist(object):
 
 class Album(object):
     def __init__(self, path, name, tracks):
+        self.path = path
         self.name = name
         self.tracks = tracks
-
-        # TODO:
-        # - load target state
 
     @property
     def year(self):
@@ -39,7 +37,7 @@ class Album(object):
 class Track(object):
     def __init__(self, path):
         self.path = path
-        self.skip = False
+        self._skip = False
 
         self._loaded = False
         self._artist = None
@@ -47,6 +45,13 @@ class Track(object):
         self._title = None
         self._duration_s = None
         self._year = None
+
+    @property
+    def skip(self):
+        return self._skip
+
+    def set_skip(self, skip):
+        self._skip = skip
 
     def _metadata(self):
         if self._loaded:
@@ -106,13 +111,8 @@ class Track(object):
 class Config(util.ConfigObj):
     source_path = ""
     target_path = ""
+    staged_albums = set()
+    skipped_tracks = set()
 
     def __init__(self):
-        pass
-
-
-class Metadata(object):
-    def __init__(self, src):
-        # TODO:
-        # - load metadata from file
         pass
