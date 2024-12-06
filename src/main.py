@@ -22,6 +22,7 @@ class MainWindow(util.compile_ui("main.ui")):
         self.cfg = cfg
         self.pixmaps = util.PixmapCache()
         self.staged_albums = {}
+        self.target_size = 0
 
         artists = self._load_sources()
 
@@ -37,6 +38,7 @@ class MainWindow(util.compile_ui("main.ui")):
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
         self.target.itemChanged.connect(self.sync_target_state)
+        self._update_target_size()
         util.restore_ui(self)
 
     def closeEvent(self, e):
@@ -130,6 +132,12 @@ class MainWindow(util.compile_ui("main.ui")):
         self.target.sortItems()
         self.staged_albums[item_name] = album
 
+        for t in album.tracks:
+            if not t.skip:
+                self.target_size += t.size
+
+        self._update_target_size()
+
     def _remove_target(self, album):
         del self.staged_albums[album.staging_name]
 
@@ -140,6 +148,27 @@ class MainWindow(util.compile_ui("main.ui")):
                 self.target.takeItem(i)
                 break
 
+        for t in album.tracks:
+            if not t.skip:
+                self.target_size -= t.size
+
+        self._update_target_size()
+
+    def _update_target_size(self):
+        SIZES = ["B", "kB", "MB", "GB"]
+
+        total = self.target_size
+        unit = 0
+        rem = 0
+        while total > 1024 and unit < len(SIZES) - 1:
+            unit += 1
+            rem = total % 1024
+            total //= 1024
+
+        total = 1.0 * total + 1.0 * rem / 1024.0
+        size = f"Total: {total:.1f} {SIZES[unit]}"
+        self.lTargetSize.setText(size)
+
     def toggle_track_state(self, item, col):
         data = item.data(0, Qt.UserRole)
         if not isinstance(data, model.Track):
@@ -149,6 +178,15 @@ class MainWindow(util.compile_ui("main.ui")):
         flags ^= Qt.ItemIsEnabled
         item.setFlags(flags)
         data.set_skip(not bool(flags & Qt.ItemIsEnabled))
+
+        album = item.parent().data(0, Qt.UserRole)
+        if album.staging_name in self.staged_albums:
+            if data.skip:
+                self.target_size -= data.size
+            else:
+                self.target_size += data.size
+
+            self._update_target_size()
 
     def sync_album_state(self, item, col):
         data = item.data(0, Qt.UserRole)

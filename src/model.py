@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
+import os
+
 import mutagen
 import util
 from mutagen.easyid3 import EasyID3
@@ -38,6 +40,9 @@ class Track(object):
     def __init__(self, path):
         self.path = path
         self._skip = False
+
+        s = os.stat(self.path)
+        self.size = s.st_size
 
         self._loaded = False
         self._artist = None

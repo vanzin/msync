@@ -95,15 +95,39 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="lTarget">
-        <property name="text">
-         <string>Target</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QListWidget" name="target"/>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="targetInfo">
+        <item>
+         <widget class="QLabel" name="lTarget">
+          <property name="text">
+           <string>Target</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="lTargetSize">
+          <property name="text">
+           <string>Total: 0 B</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
