@@ -3,6 +3,7 @@ import os
 
 import jsonpickle
 from PySide6.QtCore import QSettings
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtGui import QPixmapCache
 from PySide6.QtUiTools import loadUiType
@@ -57,6 +58,13 @@ def save_ui(widget):
     SETTINGS.setValue(f"{name}/geometry", widget.saveGeometry())
     if hasattr(widget, "saveState"):
         SETTINGS.setValue(f"{name}/windowState", widget.saveState())
+
+
+def set_pixmap(label, pixmap):
+    h = label.height()
+    w = label.width()
+    scaled = pixmap.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    label.setPixmap(scaled)
 
 
 class ConfigObj:

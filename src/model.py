@@ -86,7 +86,8 @@ class Track(object):
         self._duration_s = int(mf.info.length)
 
     def cover(self):
-        tags = mutagen.File(self.path, easy=True).tags
+        art = None
+        tags = mutagen.File(self.path).tags
 
         if type(tags) == ID3:
             for candidate in ["APIC:", "APIC:cover"]:
@@ -95,9 +96,9 @@ class Track(object):
                     art = art.data
                     break
         elif type(tags) == MP4Tags:
-            art = mf.tags.get("aART")
+            art = tags.get("aART")
             if not art:
-                art = mf.tags.get("covr")
+                art = tags.get("covr")
             if isinstance(art, list):
                 art = art[0]
 

@@ -7,6 +7,7 @@ import config
 import model
 import util
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QListWidgetItem
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QTreeWidgetItem
@@ -23,6 +24,7 @@ class MainWindow(util.compile_ui("main.ui")):
         self.pixmaps = util.PixmapCache()
         self.staged_albums = {}
         self.target_size = 0
+        self.album_cover = None
 
         artists = self._load_sources()
 
@@ -243,7 +245,6 @@ class MainWindow(util.compile_ui("main.ui")):
 
     def handle_selection(self):
         selected = self.source.selectedItems()
-        print(selected)
         if not selected:
             return
 
@@ -273,3 +274,13 @@ class MainWindow(util.compile_ui("main.ui")):
         dur_m = duration // 60
         dur_s = duration % 60
         self.duration.setText(f"{dur_m}:{dur_s:0d}")
+
+        if src.album != self.album_cover:
+            cover = src.cover()
+            if cover:
+                pm = QPixmap()
+                pm.loadFromData(src.cover())
+                util.set_pixmap(self.cover, pm)
+                self.album_cover = src.album
+            else:
+                self.album_cover = None
