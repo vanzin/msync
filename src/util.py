@@ -41,6 +41,24 @@ def icon(name):
     return os.path.join(os.path.dirname(__file__), "icons", name)
 
 
+def restore_ui(widget):
+    name = widget.__class__.__name__
+    data = SETTINGS.value(f"{name}/geometry")
+    if data:
+        widget.restoreGeometry(data)
+
+    data = SETTINGS.value(f"{name}/windowState")
+    if data:
+        widget.restoreState(data)
+
+
+def save_ui(widget):
+    name = widget.__class__.__name__
+    SETTINGS.setValue(f"{name}/geometry", widget.saveGeometry())
+    if hasattr(widget, "saveState"):
+        SETTINGS.setValue(f"{name}/windowState", widget.saveState())
+
+
 class ConfigObj:
     """
     Base class for config objects that disables serialization of "private" fields.

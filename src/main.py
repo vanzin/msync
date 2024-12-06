@@ -37,9 +37,15 @@ class MainWindow(util.compile_ui("main.ui")):
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
         self.target.itemChanged.connect(self.sync_target_state)
+        util.restore_ui(self)
+
+    def closeEvent(self, e):
+        util.save_ui(self)
+        super().closeEvent(e)
 
     def handle_quit(self):
         self.cfg.save()
+        util.save_ui(self)
         app.get().exit()
 
     def handle_config(self):
