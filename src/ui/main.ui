@@ -201,7 +201,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLineEdit" name="trackno"/>
           </item>
           <item>
            <widget class="QLabel" name="lYear">

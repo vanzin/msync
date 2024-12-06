@@ -50,6 +50,7 @@ class Track(object):
         self._title = None
         self._duration_s = None
         self._year = None
+        self._trackno = None
 
     @property
     def skip(self):
@@ -72,12 +73,17 @@ class Track(object):
         self._artist = mf.tags["artist"][0]
         self._album = mf.tags["album"][0]
         self._title = mf.tags["title"][0]
+
+        # Some tracks show up as "x/y" and some as just "x". Don't know why.
+        parts = mf.tags["tracknumber"][0].split("/")
+        self._trackno = int(parts[0])
+
         try:
             self._year = int(mf.tags["date"][0])
         except (KeyError, ValueError):
             print(f"track {self.path} is missing date information")
 
-        self.duration_s = int(mf.info.length)
+        self._duration_s = int(mf.info.length)
 
     def cover(self):
         tags = mutagen.File(self.path, easy=True).tags
@@ -98,6 +104,11 @@ class Track(object):
         return art
 
     @property
+    def title(self):
+        self._metadata()
+        return self._title
+
+    @property
     def artist(self):
         self._metadata()
         return self._artist
@@ -111,6 +122,16 @@ class Track(object):
     def year(self):
         self._metadata()
         return self._year
+
+    @property
+    def duration_s(self):
+        self._metadata()
+        return self._duration_s
+
+    @property
+    def trackno(self):
+        self._metadata()
+        return self._trackno
 
 
 class Config(util.ConfigObj):

@@ -38,6 +38,7 @@ class MainWindow(util.compile_ui("main.ui")):
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
         self.target.itemChanged.connect(self.sync_target_state)
+        self.source.itemSelectionChanged.connect(self.handle_selection)
         self._update_target_size()
         util.restore_ui(self)
 
@@ -94,7 +95,7 @@ class MainWindow(util.compile_ui("main.ui")):
             a = QTreeWidgetItem(top)
             a.setIcon(0, self.pixmaps.get_icon("album.png"))
             a.setText(0, album.name)
-            a.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+            a.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable)
             a.setData(0, Qt.UserRole, album)
 
             state = Qt.Unchecked
@@ -109,7 +110,7 @@ class MainWindow(util.compile_ui("main.ui")):
                 t.setText(0, os.path.basename(track.path))
                 t.setData(0, Qt.UserRole, track)
 
-                flags = Qt.ItemNeverHasChildren
+                flags = Qt.ItemNeverHasChildren | Qt.ItemIsSelectable
                 if track.path in self.cfg.skipped_tracks:
                     track.set_skip(True)
                 else:
@@ -239,3 +240,36 @@ class MainWindow(util.compile_ui("main.ui")):
         self.cfg.save()
 
         QMessageBox.information(self, "msync", "Done!")
+
+    def handle_selection(self):
+        selected = self.source.selectedItems()
+        print(selected)
+        if not selected:
+            return
+
+        selected = selected[0]
+        data = selected.data(0, Qt.UserRole)
+        src = data
+
+        is_track = True
+        if isinstance(data, model.Album):
+            src = data.tracks[0]
+            is_track = False
+
+        self.artist.setText(src.artist)
+        self.album.setText(src.album)
+        self.year.setText(f"{src.year}")
+        if is_track:
+            duration = src.duration_s
+            self.track.setText(src.title)
+            self.trackno.setText(f"{src.trackno}")
+        else:
+            self.track.setText("")
+            self.trackno.setText("")
+            duration = 0
+            for t in data.tracks:
+                duration += t.duration_s
+
+        dur_m = duration // 60
+        dur_s = duration % 60
+        self.duration.setText(f"{dur_m}:{dur_s:0d}")
