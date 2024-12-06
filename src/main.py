@@ -273,7 +273,7 @@ class MainWindow(util.compile_ui("main.ui")):
 
         dur_m = duration // 60
         dur_s = duration % 60
-        self.duration.setText(f"{dur_m}:{dur_s:0d}")
+        self.duration.setText(f"{dur_m}:{dur_s:02d}")
 
         if src.album != self.album_cover:
             cover = src.cover()
