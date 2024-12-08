@@ -70,16 +70,14 @@ class MainWindow(util.compile_ui("main.ui")):
             if not tracks:
                 continue
 
-            artist = tracks[0].artist
-            album = tracks[0].album
-            martist = artists_by_name.get(artist)
+            album = model.Album(path, tracks)
+            martist = artists_by_name.get(album.artist)
             if not martist:
-                martist = model.Artist(artist)
+                martist = model.Artist(album.artist)
                 artists.append(martist)
-                artists_by_name[artist] = martist
+                artists_by_name[album.artist] = martist
 
-            malbum = model.Album(path, album, tracks)
-            martist.add(malbum)
+            martist.add(album)
 
         artists.sort(key=lambda a: a.name)
         for a in artists:

@@ -21,10 +21,26 @@ class Artist(object):
 
 
 class Album(object):
-    def __init__(self, path, name, tracks):
+    def __init__(self, path, tracks):
         self.path = path
-        self.name = name
         self.tracks = tracks
+
+        self._artist = None
+
+    @property
+    def artist(self):
+        if not self._artist:
+            artist_folder = os.path.basename(os.path.dirname(self.path))
+            if artist_folder == "Various":
+                self._artist = artist_folder
+            else:
+                self._artist = self.tracks[0].artist
+
+        return self._artist
+
+    @property
+    def name(self):
+        return self.tracks[0].album
 
     @property
     def year(self):
