@@ -22,25 +22,17 @@ class MainWindow(util.compile_ui("main.ui")):
 
         self.cfg = cfg
         self.pixmaps = util.PixmapCache()
-        self.staged_albums = {}
         self.target_size = 0
         self.album_cover = None
+        self._initializing = None
+        self.staged_albums = {}
 
-        artists = self._load_sources()
-
-        items = []
-        for a in artists:
-            items.append(self._to_tree_item(a))
-
-            for aa in a.albums:
-                if aa.path in self.cfg.staged_albums:
-                    self._add_target(aa)
-
-        self.source.insertTopLevelItems(0, items)
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
         self.target.itemChanged.connect(self.sync_target_state)
         self.source.itemSelectionChanged.connect(self.handle_selection)
+
+        self._initialize()
         self._update_target_size()
         util.restore_ui(self)
 
@@ -54,8 +46,32 @@ class MainWindow(util.compile_ui("main.ui")):
         app.get().exit()
 
     def handle_config(self):
+        pre_src = self.cfg.source_path
         cfg_wnd = config.ConfigWindow(self, self.cfg)
         cfg_wnd.show()
+
+        if self.cfg.source_path != pre_src:
+            self._initialize()
+
+    def _initialize(self):
+        try:
+            self._initializing = True
+            self.source.clear()
+            self.target.clear()
+
+            artists = self._load_sources()
+
+            items = []
+            for a in artists:
+                items.append(self._to_tree_item(a))
+
+                for aa in a.albums:
+                    if aa.path in self.cfg.staged_albums:
+                        self._add_target(aa)
+
+            self.source.insertTopLevelItems(0, items)
+        finally:
+            self._initializing = False
 
     def _load_sources(self):
         artists = []
@@ -171,6 +187,9 @@ class MainWindow(util.compile_ui("main.ui")):
         self.lTargetSize.setText(size)
 
     def toggle_track_state(self, item, col):
+        if self._initializing:
+            return
+
         data = item.data(0, Qt.UserRole)
         if not isinstance(data, model.Track):
             return
@@ -190,6 +209,9 @@ class MainWindow(util.compile_ui("main.ui")):
             self._update_target_size()
 
     def sync_album_state(self, item, col):
+        if self._initializing:
+            return
+
         data = item.data(0, Qt.UserRole)
         if not isinstance(data, model.Album):
             return
@@ -206,6 +228,9 @@ class MainWindow(util.compile_ui("main.ui")):
             return
 
     def sync_target_state(self, item):
+        if self._initializing:
+            return
+
         album = item.data(Qt.UserRole)
         if (
             album.staging_name in self.staged_albums
@@ -242,6 +267,9 @@ class MainWindow(util.compile_ui("main.ui")):
         QMessageBox.information(self, "msync", "Done!")
 
     def handle_selection(self):
+        if self._initializing:
+            return
+
         selected = self.source.selectedItems()
         if not selected:
             return

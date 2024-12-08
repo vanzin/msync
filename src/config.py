@@ -25,8 +25,8 @@ class ConfigWindow(util.compile_ui("config.ui")):
         self.target.setText(self.cfg.target_path)
 
     def handle_ok(self):
-        self.cfg.source_path = self.source.text
-        self.cfg.target_path = self.target.text
+        self.cfg.source_path = self.source.text()
+        self.cfg.target_path = self.target.text()
 
         self.cfg.save()
         self.close()
