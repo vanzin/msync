@@ -6,6 +6,7 @@ import app
 import config
 import model
 import util
+from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QListWidgetItem
@@ -26,6 +27,9 @@ class MainWindow(util.compile_ui("main.ui")):
         self.album_cover = None
         self._initializing = None
         self.staged_albums = {}
+
+        # maps the album path to the tree item.
+        self.source_item_by_album = {}
 
         self.source.itemDoubleClicked.connect(self.toggle_track_state)
         self.source.itemChanged.connect(self.sync_album_state)
@@ -120,6 +124,7 @@ class MainWindow(util.compile_ui("main.ui")):
             a.setCheckState(0, state)
 
             top.addChild(a)
+            self.source_item_by_album[album.path] = a
 
             for track in album.tracks:
                 t = QTreeWidgetItem(a)
@@ -237,6 +242,11 @@ class MainWindow(util.compile_ui("main.ui")):
             and item.checkState() == Qt.Unchecked
         ):
             self._remove_target(album)
+
+        if source_item := self.source_item_by_album.get(album.path):
+            QTimer.singleShot(
+                0, lambda: source_item.setCheckState(0, item.checkState())
+            )
 
     def handle_sync(self):
         # Clean up all existing staged data
