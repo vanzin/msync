@@ -95,7 +95,7 @@ class MainWindow(util.compile_ui("main.ui")):
 
             martist.add(album)
 
-        artists.sort(key=lambda a: a.name)
+        artists.sort(key=lambda a: a.name.lower())
         for a in artists:
             a.albums.sort(key=lambda a: -a.year)
 
